@@ -17,11 +17,13 @@ class TransformerModel(nn.Module):
         super(TransformerModel, self).__init__()
         from torch.nn import TransformerEncoder, TransformerEncoderLayer
         self.emb = nn.Linear(dim_in, units)
-        encoder_layers = TransformerEncoderLayer(units, nhead, dim_out, dropout)
+        encoder_layers = TransformerEncoderLayer(units, nhead)
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
+        self.decoder = nn.Linear(units, dim_out)
         self.optimizer = optim.Adam(
                 chain(self.transformer_encoder.parameters(),
-                      self.emb.parameters()),
+                      self.emb.parameters(),
+                      self.decoder.parameters()),
                 lr=0.01, betas=(0.5, 0.999))
         self.cuda = False if not torch.cuda.is_available() else True
         self.activation = F.relu
@@ -30,19 +32,20 @@ class TransformerModel(nn.Module):
     def forward(self, src):
         src = self.emb(src)
         output = self.transformer_encoder(self.activation(src))
+        output = self.decoder(output)
         return output
 
     def train(self, batch):
         Tensor = torch.cuda.FloatTensor if self.cuda else torch.Tensor
         label = batch["label"]
         label = move_to_gpu(label)
+        target = F.one_hot(label)
         src = Variable(batch['x'].type(Tensor))
         logits = self.forward(src)
-        loss_C = nn.CrossEntropyLoss()(logits, label)
-        loss += loss_C
+        loss = nn.CrossEntropyLoss()(logits, target)
         loss.backward(retain_graph=True)
         self.optimizer.step()
         metrics = {
-            "loss_C": loss_C.item(),
+            "loss": loss.item(),
         }
         return metrics

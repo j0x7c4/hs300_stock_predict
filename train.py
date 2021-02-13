@@ -27,13 +27,11 @@ def train(train_data, eval_data=None):
             milestones=[30, 80], gamma=0.1)
 
     global_steps = 0
-    best_auc = 0
-
     for epoch in tqdm(list(range(3)), desc='epoch'):
         for step, batch in enumerate(dataloader):
-            print(batch)
             global_steps += 1
-            model.train(batch)
+            metrics = model.train(batch)
+            print(metrics)
         lr_scheduler.step()
     return
 
