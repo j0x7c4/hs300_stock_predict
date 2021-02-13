@@ -62,10 +62,8 @@ def train_lstm(time_step=args.time_step, val=True):
         valid_writer = tf.summary.FileWriter(args.val_graph_dir)
         min_loss = 50
         # 训练.次
-        print("batch_index:", batch_index)
         for i in range(args.epoch):
             for j in range(len(batch_index)-1):
-                print(j)
                 summary_str, _, loss_ = sess.run([merged_summary_op, train_op, loss],
                                                  feed_dict={X: train_x[batch_index[j]:batch_index[j+1]],
                                                             Y: train_y[batch_index[j]:batch_index[j+1]]})

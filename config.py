@@ -42,10 +42,10 @@ class Arg:
         # 单只股票的长度（同一数据集股票长度应处理等长）
         # self.stock_len = get_data_len(os.path.join(data_root,
         #     '399300_1904.csv'))
-        self.stock_len = 4
+        self.stock_len = 270
         # 更新后单只股票的长度（同一数据集股票长度应处理等长）
         # self.stock_len_new = get_data_len(os.path.join(data_root,
         #     '399300_190103.csv'))
-        self.stock_len_new = 4
+        self.stock_len_new = 100
         self.batch_size = 1  # batch_size
         self.ratio = 0.8        # 训练集验证集比例

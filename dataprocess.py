@@ -18,8 +18,6 @@ def get_train_data(batch_size=args.batch_size, time_step=args.time_step):
     df = open(train_dir)
     data_otrain = pd.read_csv(df)
     data_train = data_otrain.iloc[:, 1:].values
-    print("*"*10, data_train)
-    print(len(data_train))
     label_train = data_otrain.iloc[:, -1].values
     normalized_train_data = (data_train-np.mean(data_train, axis=0))/np.std(data_train, axis=0)  # 标准化
     train_x, train_y = [], []   # 训练集x和y定义
@@ -59,8 +57,6 @@ def get_train_data(batch_size=args.batch_size, time_step=args.time_step):
             val_index.append(i)
     batch_index.append(len(train_x_1))
     val_index.append(len(val_x))
-    print(batch_index)
-    print(val_index)
     print(np.shape(train_x))
     return batch_index, val_index, train_x_1, train_y_1, val_x, val_y
 

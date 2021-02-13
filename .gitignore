@@ -1,4 +1,8 @@
 data/
 models/
+checkpoint
 __pycache__
 *.pyc
+*.swp
+.ipynb_checkpoints/
+*.out
