@@ -7,7 +7,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
 from functions import (
-    move_to_gpu
+    move_to_gpu,
+    move_to_cpu
 )
 
 
@@ -28,19 +29,22 @@ class TransformerModel(nn.Module):
         self.cuda = False if not torch.cuda.is_available() else True
         self.activation = F.relu
         self.dropout = nn.Dropout(dropout)
+        self.Tensor = torch.cuda.FloatTensor if self.cuda else torch.Tensor
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, src):
         src = self.emb(src)
         output = self.transformer_encoder(self.activation(src))
         output = self.decoder(output)
+        output = torch.mean(output, dim=1)
         return output
 
     def train(self, batch):
-        Tensor = torch.cuda.FloatTensor if self.cuda else torch.Tensor
         label = batch["label"]
         label = move_to_gpu(label)
-        target = F.one_hot(label)
-        src = Variable(batch['x'].type(Tensor))
+        # target = F.one_hot(label)
+        target = label
+        src = Variable(batch['x'].type(self.Tensor))
         logits = self.forward(src)
         loss = nn.CrossEntropyLoss()(logits, target)
         loss.backward(retain_graph=True)
@@ -49,3 +53,9 @@ class TransformerModel(nn.Module):
             "loss": loss.item(),
         }
         return metrics
+
+    def predict(self, batch):
+        src = Variable(batch['x'].type(self.Tensor))
+        logits = self.forward(src)
+        scores = self.softmax(logits)
+        return scores

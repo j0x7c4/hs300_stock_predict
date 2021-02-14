@@ -1,6 +1,7 @@
 # coding:utf-8
 from data_utils import *
 import os
+import argparse
 root = os.path.dirname(os.path.abspath(__file__))
 data_root = os.path.join(root, 'data')
 model_root = os.path.join(root, 'models')
@@ -48,4 +49,18 @@ class Arg:
         #     '399300_190103.csv'))
         self.stock_len_new = 100
         self.batch_size = 1  # batch_size
-        self.ratio = 0.8        # 训练集验证集比例
+        self.ratio = 0.99       # 训练集验证集比例
+
+
+
+def get_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--not_cuda', action='store_true', help='disables cuda', default=0)
+    parser.add_argument('--save_steps', help='save steps', default=1000, type=int)
+    parser.add_argument('--batch_size', help='batch_size', default=256, type=int)
+    parser.add_argument('--epoch', help='epoch', default=10, type=int)
+    parser.add_argument('--log_steps', help='log steps', default=100, type=int)
+    parser.add_argument('--model_dir', help='model dir', default="models", type=str)
+    parser.add_argument('--model_name', help='model name', default="stock", type=str)
+    return parser
+
