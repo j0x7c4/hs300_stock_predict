@@ -6,19 +6,16 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from torch.utils.data import Dataset
-from config import Arg
-
-args = Arg()
-
 
 # 该系列代码所要求的股票文件名称必须是股票代码+csv的格式，如000001.csv
 # --------------------------训练集数据的处理--------------------- #
-def get_train_data(batch_size=args.batch_size, time_step=args.time_step):
-    ratio = args.ratio
-    stock_len = args.stock_len
+def get_train_data(opt):
+    ratio = opt.ratio
+    stock_len = opt.stock_len
+    time_step = opt.time_step
     len_index = []
-    train_dir = args.train_dir
-    df = open(train_dir)
+    train_data_path = opt.train_data_path
+    df = open(train_data_path)
     data_otrain = pd.read_csv(df)
     data_train = data_otrain.iloc[:, 1:].values
     label_train = data_otrain.iloc[:, -1].values

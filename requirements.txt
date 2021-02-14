@@ -1,2 +1,5 @@
 tushare
 sklearn
+torchsummary
+torch
+numpy

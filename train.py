@@ -13,6 +13,7 @@ from metrics import Metrics
 import os
 import logging
 import torch.nn as nn
+from torchsummary import summary
 # logging.basicConfig(format='%(asctime)s %(message)s',
 #        filename="./logs/train.log", filemode='w', level="DEBUG")
 logging.basicConfig(format='%(asctime)s %(message)s',level="DEBUG")
@@ -50,6 +51,15 @@ def eval(opt, model, eval_data):
 
 def train(opt, train_data, eval_data=None):
     logger.info("start training task")
+    dim_input = 6
+    dim_emb = 512
+    num_class = 6
+    transformer_nhead = 8
+    transformer_nlayers = 3
+    model = move_to_gpu(TransformerModel(dim_input, dim_emb, transformer_nhead,
+        num_class,
+        transformer_nlayers))
+    summary(model, (20, 6))
     try:
         dataloader = DataLoader(
             train_data,
@@ -60,8 +70,6 @@ def train(opt, train_data, eval_data=None):
         logger.info("create training dataloader")
     except Exception as e:
         logger.error("fail to create dataloader", e)
-
-    model = move_to_gpu(TransformerModel(6, 512, 8, 6, 3))
 
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer=model.optimizer,
             milestones=[30, 80], gamma=0.1)
@@ -88,5 +96,5 @@ def train(opt, train_data, eval_data=None):
 if __name__ == "__main__":
     parser = get_arguments()
     opt = parser.parse_args()
-    train_set, dev_set = get_train_data()
+    train_set, dev_set = get_train_data(opt)
     train(opt, train_set, dev_set)

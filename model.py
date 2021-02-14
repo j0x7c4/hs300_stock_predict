@@ -12,6 +12,7 @@ from functions import (
 )
 
 
+
 class TransformerModel(nn.Module):
 
     def __init__(self, dim_in, units,  nhead, dim_out, nlayers, dropout=0.5):
@@ -34,16 +35,13 @@ class TransformerModel(nn.Module):
 
     def forward(self, src):
         src = self.emb(src)
-        output = self.transformer_encoder(self.activation(src))
-        output = self.decoder(output)
-        output = torch.mean(output, dim=1)
+        encoder_output = self.transformer_encoder(self.activation(src))
+        output = self.decoder(encoder_output.mean(dim=1))
         return output
 
     def train(self, batch):
         label = batch["label"]
-        label = move_to_gpu(label)
-        # target = F.one_hot(label)
-        target = label
+        target = move_to_gpu(label)
         src = Variable(batch['x'].type(self.Tensor))
         logits = self.forward(src)
         loss = nn.CrossEntropyLoss()(logits, target)
