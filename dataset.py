@@ -9,6 +9,26 @@ from torch.utils.data import Dataset
 
 # 该系列代码所要求的股票文件名称必须是股票代码+csv的格式，如000001.csv
 # --------------------------训练集数据的处理--------------------- #
+def get_label6(y):
+    if y>2:
+        return 5
+    if y>1:
+        return 4
+    if y>0:
+        return 3
+    if y>-1:
+        return 2
+    if y>-2:
+        return 1
+    return 0
+
+def get_label3(y):
+    if y>1:
+        return 2
+    if y>-1:
+        return 1
+    return 0
+
 def get_train_data(opt):
     ratio = opt.ratio
     stock_len = opt.stock_len
@@ -32,20 +52,8 @@ def get_train_data(opt):
         for k in range(len_index[i], len_index[i + 1] - time_step - 1):
             x = normalized_train_data[k:k + time_step, :6]
             y = label_train[k + time_step]
-            temp_data = 0
-            # onehot编码
-            if y > 2:
-                temp_data = 5
-            elif 1 < y <= 2:
-                temp_data = 4
-            elif 0 < y <= 1:
-                temp_data = 3
-            elif -1 < y <= 0:
-                temp_data = 2
-            elif -2 < y <= -1:
-                temp_data = 1
             train_x.append(x)
-            train_y.append(temp_data)
+            train_y.append(get_label3(y))
     train_x, train_y = np.array(train_x), np.array(train_y)
     train_len = int(len(train_x) * ratio)  # 按照8：2划分训练集和验证集
     train_x_1, train_y_1 = train_x[:train_len], train_y[:train_len]  # 训练集的x和标签
@@ -61,6 +69,7 @@ class StockDataset(Dataset):
         self.observations = observations
         self.labels = labels
         self.size = len(observations)
+        self.num_class = max(labels) + 1 
 
     def __getitem__(self, index):
         item = self.observations[index % self.size]

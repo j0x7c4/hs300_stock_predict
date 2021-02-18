@@ -56,8 +56,8 @@ def train(opt, train_data, eval_data=None):
     logger.info("start training task")
     dim_input = 6
     dim_emb = 64
-    num_class = 6
-    transformer_nhead = 8
+    num_class = train_data.num_class
+    transformer_nhead = 2
     transformer_nlayers = 1
     model = TransformerModel(dim_input, dim_emb, transformer_nhead,
         num_class,
@@ -77,7 +77,7 @@ def train(opt, train_data, eval_data=None):
         logger.error("fail to create dataloader", e)
 
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer=model.optimizer,
-            milestones=[30, 80], gamma=0.1)
+            milestones=[5, 10], gamma=0.1)
 
     model_path = os.path.join(opt.model_dir,opt.model_name+".pth")
     global_steps = 0
