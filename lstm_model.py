@@ -49,6 +49,7 @@ def train_lstm(time_step=args.time_step, val=True):
     Y = tf.placeholder(tf.float32, shape=[None, 1, args.output_size])
     batch_index, val_index, train_x, train_y, val_x, val_y = get_train_data()
     print('trian_y:{}, val_y:{}'.format(np.shape(train_y), np.shape(val_y)))
+    print('trian_x:{}, train_y:{}'.format(train_x[0], train_y[0]))
     pred, _ = lstm(X)
     # 损失函数
     loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=Y))

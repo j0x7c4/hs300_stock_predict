@@ -42,24 +42,29 @@ def eval(opt, model, eval_data):
         score = torch.index_select(result, 1, idx)
         label = batch['label']
         preds += idx.tolist()
-        labels += label
+        labels += label.tolist()
         scores += score.tolist()
-        loss = nn.CrossEntropyLoss()(result, move_to_gpu(label))
+        if model.cuda:
+            label = move_to_gpu(label)
+        loss = model.loss_fn(result, label)
         losses.append(loss.item())
-    mAP = Metrics.mAP(preds, labels)
-    return mAP, {"mAP": mAP, "eval_loss": np.average(losses)}
+    mAP, info = Metrics.mAP(preds, labels)
+    info.update({"mAP": mAP, "eval_loss": np.average(losses)})
+    return mAP, info
 
 def train(opt, train_data, eval_data=None):
     logger.info("start training task")
     dim_input = 6
-    dim_emb = 512
+    dim_emb = 64
     num_class = 6
     transformer_nhead = 8
-    transformer_nlayers = 3
-    model = move_to_gpu(TransformerModel(dim_input, dim_emb, transformer_nhead,
+    transformer_nlayers = 1
+    model = TransformerModel(dim_input, dim_emb, transformer_nhead,
         num_class,
-        transformer_nlayers))
-    summary(model, (20, 6))
+        transformer_nlayers)
+    if model.cuda:
+        model = move_to_gpu(model)
+    summary(model, train_data[0]['x'].shape)
     try:
         dataloader = DataLoader(
             train_data,

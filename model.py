@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
+from losses import EMDLoss 
 from functions import (
     move_to_gpu,
     move_to_cpu
@@ -31,21 +32,30 @@ class TransformerModel(nn.Module):
         self.activation = F.relu
         self.dropout = nn.Dropout(dropout)
         self.Tensor = torch.cuda.FloatTensor if self.cuda else torch.Tensor
-        self.softmax = nn.Softmax(dim=1)
+        self.softmax = nn.LogSoftmax(dim=1)
+        # self.loss_fn = EMDLoss()
+        self.loss_fn = nn.CrossEntropyLoss()
 
     def forward(self, src):
         src = self.emb(src)
         encoder_output = self.transformer_encoder(self.activation(src))
         output = self.decoder(encoder_output.mean(dim=1))
+        # output = self.decoder(encoder_output[:,0])
         return output
 
     def train(self, batch):
         label = batch["label"]
-        target = move_to_gpu(label)
+        if self.cuda:
+            target = move_to_gpu(label)
+        else:
+            target = label
         src = Variable(batch['x'].type(self.Tensor))
         logits = self.forward(src)
-        loss = nn.CrossEntropyLoss()(logits, target)
-        loss.backward(retain_graph=True)
+        loss = self.loss_fn(logits, target)
+        self.optimizer.zero_grad()
+        # logits.retain_grad()
+        loss.backward()
+        # print("grad", logits.grad)
         self.optimizer.step()
         metrics = {
             "loss": loss.item(),
@@ -56,4 +66,5 @@ class TransformerModel(nn.Module):
         src = Variable(batch['x'].type(self.Tensor))
         logits = self.forward(src)
         scores = self.softmax(logits)
+        scores = torch.exp(scores)
         return scores

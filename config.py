@@ -56,7 +56,7 @@ class Arg:
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--not_cuda', action='store_true', help='disables cuda', default=0)
-    parser.add_argument('--save_steps', help='save steps', default=1000, type=int)
+    parser.add_argument('--save_steps', help='save steps', default=100, type=int)
     parser.add_argument('--batch_size', help='batch_size', default=256, type=int)
     parser.add_argument('--epoch', help='epoch', default=10, type=int)
     parser.add_argument('--log_steps', help='log steps', default=100, type=int)
@@ -64,8 +64,8 @@ def get_arguments():
     parser.add_argument('--model_name', help='model name', default="stock", type=str)
     parser.add_argument('--train_data_path', help='train data path',default=os.path.join(data_root,"train_mix-17-18.csv"), type=str)
     parser.add_argument('--test_data_path', help='test data path',default=os.path.join(data_root,"train_mix-1904.csv"), type=str)
-    parser.add_argument('--time_step', help='time steps per train record',default=20, type=int)
-    parser.add_argument('--ratio', help='train data ratio in train and dev set',default=0.99, type=float)
+    parser.add_argument('--time_step', help='time steps per train record',default=7, type=int)
+    parser.add_argument('--ratio', help='train data ratio in train and dev set',default=0.6, type=float)
     parser.add_argument('--stock_len', help='stock len',default=489, type=int)
     return parser
 
