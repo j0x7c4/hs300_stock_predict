@@ -14,6 +14,7 @@ import os
 import logging
 import torch.nn as nn
 from torchsummary import summary
+import json
 # logging.basicConfig(format='%(asctime)s %(message)s',
 #        filename="./logs/train.log", filemode='w', level="DEBUG")
 logging.basicConfig(format='%(asctime)s %(message)s',level="DEBUG")
@@ -101,5 +102,8 @@ def train(opt, train_data, eval_data=None):
 if __name__ == "__main__":
     parser = get_arguments()
     opt = parser.parse_args()
-    train_set, dev_set = get_train_data(opt)
+    train_set, dev_set, extinfo = get_train_data(opt)
+    with open(os.path.join(opt.model_dir, opt.model_name + ".conf"), 'w') as f:
+        print(extinfo)
+        f.write(json.dumps(extinfo,ensure_ascii=False))
     train(opt, train_set, dev_set)

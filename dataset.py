@@ -38,12 +38,10 @@ def get_train_data(opt):
     df = open(train_data_path)
     data_otrain = pd.read_csv(df)
     data_train = data_otrain.iloc[:, 1:].values
-    # label_train = data_otrain['close'] / data_otrain['open'] - 1
-    # label_train = label_train.values
-    # print(label_train)
     label_train = data_otrain.iloc[:, -1].values
-    normalized_train_data = (data_train-np.mean(data_train, axis=0))/np.std(data_train, axis=0)  # 标准化
-    # normalized_train_data = data_train  # 标准化
+    data_mean = np.mean(data_train, axis=0)
+    data_std = np.std(data_train, axis=0)
+    normalized_train_data = (data_train-data_mean)/data_std  # 标准化
     train_x, train_y = [], []   # 训练集x和y定义
     for i in range(len(normalized_train_data) + 1):
         if i % stock_len == 0:
@@ -61,7 +59,11 @@ def get_train_data(opt):
     print(train_x_1[0], train_y_1[0])
     train_set = StockDataset(train_x_1, train_y_1)
     dev_set = StockDataset(val_x, val_y)
-    return train_set, dev_set
+    ext_info = {
+        "mean": data_mean.tolist(),
+        "std": data_std.tolist()
+    }
+    return train_set, dev_set, ext_info
 
 
 class StockDataset(Dataset):

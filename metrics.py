@@ -21,12 +21,17 @@ class Metrics(object):
                 correct_map[label] += 1
         precision_map = {}
         recall_map = {}
+        f1_map = {}
         for k, v in correct_map.items():
-            precision_map[f"precision@{k}"] = 1.0*v / predict_map[k] if k in predict_map else 0
-            recall_map[f"recall@{k}"] = 1.0* v/ cls_label_map[k]
+            p =1.0*v / predict_map[k] if k in predict_map else 0
+            c = 1.0* v/ cls_label_map[k]
+            precision_map[f"precision@{k}"] = p
+            recall_map[f"recall@{k}"] = c
+            f1_map[f"f1@{k}"] = 2*p*c /(p+c) if p+c > 0 else 0
         print(correct_map)
         print(cls_label_map)
         ret = np.average(list(precision_map.values()))
         info = precision_map
         info.update(recall_map)
+        info.update(f1_map)
         return ret, info
